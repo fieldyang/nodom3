@@ -144,15 +144,21 @@ export class Compiler {
         while (index < attrString.length - 1) {
             attrString = attrString.substring(index);
             const attr = attrString.match(attrReg)
-            let [attrStr, attrName, attrValue]: any = attr;
-            if (attrValue?.startsWith("'") || attrValue?.startsWith('"')) {
-                attrValue = attrValue.substring(1, attrValue.length - 1).trim();
+            if (attr) {
+                let [attrStr, attrName, attrValue]: any = attr;
+                if (attrValue?.startsWith("'") || attrValue?.startsWith('"')) {
+                    attrValue = attrValue.substring(1, attrValue.length - 1).trim();
+                }
+                if (attrValue?.startsWith('{{')) {
+                    attrValue = new Expression(attrValue.substring(2, attrValue.length - 2));
+                }
+                if (attrName != undefined) {
+                    attrs.set(attrName, attrValue ? attrValue : '');
+                }
+                index += attrStr.length + attr.index;
+            } else {
+                return attrs
             }
-            if (attrValue?.startsWith('{{')) {
-                attrValue = new Expression(attrValue.substring(2, attrValue.length - 2));
-            }
-            attrs.set(attrName, attrValue ? attrValue : '');
-            index += attrStr.length + attr.index;
         }
         return attrs;
     }
@@ -169,7 +175,7 @@ export class Compiler {
         let index = -2;
         // 开始标签的正则表达式 
         const tagReg =
-            /(?<!\{\{[^<}}]*)(?:<(\/?)\s*?([a-zA-Z][a-zA-Z0-9-_]*)([\s\S]*?)(\/?)>)(?![^>{{]*?\}\})/g;
+            /(?<!\{\{[^<}}]*)(?:<(\/?)\s*?([a-zA-Z][a-zA-Z0-9-_]*)([\s\S]*?)(\/?)(?<!=)>)(?![^>{{]*?\}\})/g;
         // 匹配注释
         const commentRegExp = /\s*\<!--[\s\S]+?--\>/g;
         // 不需要注释节点
@@ -197,6 +203,9 @@ export class Compiler {
                 }
                 index = tagReg.lastIndex;
             }
+        }
+        if (stack1.length != 0) {
+            throw new NError('compile1', `${stack1[0]}`)
         }
         return root;
     }
