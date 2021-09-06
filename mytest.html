@@ -9,8 +9,17 @@
 	<body></body>
 
 	<script>
-		let reg = /([a-zA-Z][a-zA-Z0-9-_]*)=?('.*?'|".*?"|{{.*?}})?/;
-		let str = `div a=' v"as"v' b='{{asdasd}}'`;
-		console.log(reg.exec(str));
+		let reg = /([a-zA-Z][a-zA-Z0-9-_]*)=?([\s\S]*?(?=\s)|'.*?'|".*?"|\{\{[\s\S]*?\}{0,2}\s*\}\})?/;
+		let str = `abc=abc ab={{ab}} cd ef='ef'`;
+		let index = 0;
+		let r;
+		while (index < str.length - 1) {
+			str = str.substring(index);
+			console.log(index);
+			console.log(str);
+			let attr = str.match(reg);
+			console.log(attr);
+			index += attr[0].length + attr.index;
+		}
 	</script>
 </html>
