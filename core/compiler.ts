@@ -138,11 +138,17 @@ export class Compiler {
      * @returns attrs数组 
      */
     private static parseAttrString(attrString: string | undefined): Map<string, any> {
-        const attrReg = /([a-zA-Z][a-zA-Z0-9-_]*)=?('.*?'|".*?"|\{\{[\s\S]*?\}{0,2}\s*\}\})?/;
+        if (attrString == undefined) {
+            return new Map();
+        } else {
+            attrString += ' ';
+        }
+        const attrReg = /([a-zA-Z][a-zA-Z0-9-_]*)=?((?<==)(?:[\s\S]*?(?=\s)|'.*?'|".*?"|\{\{[\s\S]*?\}{0,2}\s*\}\}))?/;
         let index = 0;
         let attrs = new Map();
         while (index < attrString.length - 1) {
             attrString = attrString.substring(index);
+            index = 0;
             const attr = attrString.match(attrReg)
             if (attr) {
                 let [attrStr, attrName, attrValue]: any = attr;

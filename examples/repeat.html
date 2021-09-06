@@ -25,39 +25,32 @@
 		class Module1 extends Module {
 			template() {
 				return `
-		                 <div class="view">
-		                    <div>{{price.toFixed(2)}}</div>
-		                    <button  e-click='pop'>pop</button>
-		                    <div class="tip">基本使用</div>
-		                 <div class="code">
-		                    菜单：
-		                    <div x-repeat="{{foods}}">
-		                        菜名：{{name}}，价格：{{price}}
-		                    </div>
-		                </div>
-		                <div class="tip">索引号的使用（编号从0开始）</div>
-		                <div class="code">
-		                    菜单：
-		                    <div x-repeat={{foods}}>
-		                        编号：{{$index}}，菜名：{{name}}，价格：{{price}}
-		                    </div>
-		                </div>
-		                <div class="tip">自定义过滤数组</div>
-		                <div class="code">
-		                    菜单：
-		                    <div x-repeat={{getOdd(foods)}}>
-		                        菜名：{{name}}，价格：{{price}}
-		                    </div>
-		                </div>
-		                <div class="tip">价格升序排序（编号从1开始）</div>
-		                <div class="code">
-		                    菜单：
-		                    <div x-repeat={{foods.sort((a,b)=>{if(a.price>b.price)
-		                        return 1;return -1;})}}>
-		                        编号：{{$index+1}}，菜名：{{name}}，价格：{{price}}
-		                    </div>
-		                </div>
-		            </div>
+        <div>
+			<div class="view">
+				<div>{{price.toFixed(2)}}</div>
+				<button e-click="pop">pop</button>
+				<div class="tip">基本使用</div>
+				<div class="code">
+					菜单：
+					<div x-repeat="{{foods}}">菜名：{{name}}，价格：{{price}}</div>
+				</div>
+				<div class="tip">索引号的使用（编号从0开始）</div>
+				<div class="code">
+					菜单：
+					<div x-repeat="{{foods}}">编号：{{$index}}，菜名：{{name}}，价格：{{price}}</div>
+				</div>
+				<div class="tip">自定义过滤数组</div>
+				<div class="code">
+					菜单：
+					<div x-repeat="{{getOdd(foods)}}">菜名：{{name}}，价格：{{price}}</div>
+				</div>
+				<div class="tip">价格升序排序（编号从1开始）</div>
+				<div class="code">
+					菜单： <div x-repeat={{foods.sort((a,b)=>{if(a.price>b.price) return 1;return -1;})}}>
+					编号：{{$index+1}}，菜名：{{name}}，价格：{{price}}
+				</div>
+			</div>
+		</div>
 		            `;
 			}
 
@@ -117,7 +110,11 @@
 						return -1;
 					});
 				},
-				pop() {},
+				pop(dom, module, e, el) {
+					this.foods.pop();
+					console.log(this);
+					// console.log(dom, module, e, el);
+				},
 			};
 		}
 		nodom(Module1, "div");
