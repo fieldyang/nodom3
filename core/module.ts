@@ -183,7 +183,7 @@ export class Module {
                 this.methodFactory.add(item, methods[item]);
             });
         }
-        delete this.methods;
+        // delete this.methods;
 
         //初始化子模块
         let mods = (typeof this.modules === 'function' ? this.modules.apply(this.model) : this.modules);
@@ -245,7 +245,6 @@ export class Module {
      * @return false 渲染失败 true 渲染成功
      */
     public render(): boolean {
-
         //状态为2，不渲染
         // if (this.state === 2) {
         //     return true;
@@ -426,7 +425,7 @@ export class Module {
      * 激活模块(添加到渲染器)
      */
     public active() {
-
+        Renderer.add(this);
     }
 
     /**
