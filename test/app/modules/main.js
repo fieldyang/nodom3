@@ -1,7 +1,11 @@
-import {Module} from '../../../dist/nodom.js'
-import {ModuleA} from './modulea.js'
-export class ModuleMain extends Module{
-    template(){
+import {
+    Module
+} from '../../../dist/nodom.js'
+import {
+    ModuleA
+} from './modulea.js'
+export class ModuleMain extends Module {
+    template() {
         return `
             <div>
                 <button e-click='change'>change</button>
@@ -54,8 +58,8 @@ export class ModuleMain extends Module{
             this.y = 'aaaa';
             // console.log(this);
         }
-        
+
     }
     modules = [ModuleA]
-    
+
 }

@@ -6,7 +6,7 @@ import { Model } from "./model";
 import { ModelManager } from "./modelmanager";
 import { ModuleFactory } from "./modulefactory";
 import { Renderer } from "./renderer";
-import { ChangedDom} from "./types";
+import { ChangedDom } from "./types";
 import { Util } from "./util";
 
 /**
@@ -101,17 +101,17 @@ export class Module {
     /**
      * 容器key
      */
-    private containerKey:string;
+    private containerKey: string;
 
     /**
      * 后置渲染序列
      */
-    private preRenderOps:any[] = [];
+    private preRenderOps: any[] = [];
 
     /**
      * 后置渲染序列
      */
-    private postRenderOps:any[] = [];
+    private postRenderOps: any[] = [];
 
     /**
      * 缓存
@@ -121,8 +121,8 @@ export class Module {
     /**
      * 交换器  {交换器名(默认default):要替代的dom}
      */
-    public swapMap:Map<string,Element>;
-    
+    public swapMap: Map<string, Element>;
+
     /**
      * 构造器
      */
@@ -235,56 +235,12 @@ export class Module {
                 root.render(this, null);
                 this.doModuleEvent('onBeforeRenderToHtml');
                 let deleteMap = new Map();
-                let renderDoms:ChangedDom[] = [];
+                let renderDoms: ChangedDom[] = [];
                 // 比较节点
                 root.compare(oldTree, renderDoms, deleteMap);
-                //刪除和替換
-                deleteMap.forEach((value, key) => {
-                    let dp: HTMLElement = this.getNode(key);
-                    let tmp = [];
-                    for (let i = 0; i < value.length; i++) {
-                        let index = value[i];
-                        if (typeof index == 'object') {
-                            let els;
-                            //新建替换
-                            if (index[2] != undefined) {
-                                els = dp.querySelectorAll("[key='" + index[1] + "']");
-                                dp.insertBefore((() => {
-                                    const vDom: Element = root.query(index[0]);
-                                    return Util.newEls(vDom, this, vDom.parent, this.getNode(vDom.parent.key));
-                                })(), els[els.length - 1]);
-                            } else if (index.length === 2) {
-                                //更改dom节点顺序
-                                let ele = this.getNode(index[0]);
-                                if (ele) {
-                                    els = dp.querySelectorAll("[key='" + index[1] + "']");
-                                    dp.insertBefore(ele, els[els.length - 1]);
-                                }
-                            } else {
-                                //删除dom节点
-                                els = dp.querySelectorAll("[key='" + index[0] + "']");
-                                dp.removeChild(els[els.length - 1]);
-                            }
-                        } else {
-                            tmp.push(index);
-                        }
-                    }
-                    //替换和删除需要反向操作
-                    for (let i = tmp.length - 1; i >= 0; i--) {
-                        let index = tmp[i];
-                        if (typeof index == 'string') {
-                            let parm = index.split('|');
-                            index = parm[0];
-                            const vDom: Element = root.query(parm[1]);
-                            console.log(vDom);
-                            dp.insertBefore((() => {
-                                return Util.newEls(vDom, this, vDom.parent, this.getNode(vDom.parent.key));
-                            })(), dp.childNodes[index++]);
-                        }
-                        if (dp.childNodes.length > index) dp.removeChild(dp.childNodes[index]);
-                    }
-                });
-                deleteMap.clear();
+                //处理compare结果
+                this.handleRenderMap(deleteMap,root);
+                
                 // 渲染
                 renderDoms.forEach((item) => {
                     item.node.renderToHtml(this, item);
@@ -315,12 +271,12 @@ export class Module {
         }
         root.render(this, null);
         this.doModuleEvent('onBeforeFirstRenderToHTML');
-        
+
         //无容器，不执行
         if (!this.getContainer()) {
             return;
         }
-        
+
         //清空子元素
         Util.empty(this.container);
         //渲染到html
@@ -359,9 +315,9 @@ export class Module {
     public active() {
         this.state = 3;
         Renderer.add(this);
-        for(let id of this.children){
+        for (let id of this.children) {
             let m = ModuleFactory.get(id);
-            if(m){
+            if (m) {
                 m.active();
             }
         }
@@ -382,9 +338,9 @@ export class Module {
         delete this.renderTree;
         
         //处理子节点
-        for(let id of this.children){
+        for (let id of this.children) {
             let m = ModuleFactory.get(id);
-            if(m){
+            if (m) {
                 m.unactive();
             }
         }
@@ -478,9 +434,9 @@ export class Module {
         let qs: string = "[" + keyName + "='" + value + "']";
         let ct = this.getContainer();
 
-        if(ct){
+        if (ct) {
             return ct.querySelector(qs);
-        }else if(notNull){
+        } else if (notNull) {
             return ct || null;
         }
     }
@@ -498,8 +454,8 @@ export class Module {
      * 获取模块容器
      */
     public getContainer(): HTMLElement {
-        if(!this.container){
-            if(this.containerKey){
+        if (!this.container) {
+            if (this.containerKey) {
                 this.container = this.getParent().getNode(this.containerKey);
             }
         }
@@ -510,7 +466,7 @@ export class Module {
      * 设置渲染容器
      * @param el    容器
      */
-    public setContainer(el:HTMLElement){
+    public setContainer(el: HTMLElement) {
         this.container = el;
     }
 
@@ -518,7 +474,7 @@ export class Module {
      * 设置渲染容器key
      * @param key   容器key
      */
-    public setContainerKey(key:string){
+    public setContainerKey(key: string) {
         this.containerKey = key;
     }
 
@@ -541,15 +497,15 @@ export class Module {
      * @param args  参数
      * @param once  是否只执行一次，如果为true，则执行后删除
      */
-    public addRenderOps(foo:Function,flag:number,args?:any[],once?:boolean){
-        if(typeof foo !== 'function'){
+    public addRenderOps(foo: Function, flag: number, args?: any[], once?: boolean) {
+        if (typeof foo !== 'function') {
             return;
         }
-        let arr = flag===0?this.preRenderOps:this.postRenderOps;
+        let arr = flag === 0 ? this.preRenderOps : this.postRenderOps;
         arr.push({
-            foo:foo,
-            args:args,
-            once:once
+            foo: foo,
+            args: args,
+            once: once
         });
     }
 
@@ -557,20 +513,78 @@ export class Module {
      * 执行渲染方法
      * @param flag 类型 0:前置 1:后置
      */
-    private doRenderOps(flag:number){
-        let arr = flag===0?this.preRenderOps:this.postRenderOps;
-        if(arr){
-            for(let i=0;i<arr.length;i++){
+    private doRenderOps(flag: number) {
+        let arr = flag === 0 ? this.preRenderOps : this.postRenderOps;
+        if (arr) {
+            for (let i = 0; i < arr.length; i++) {
                 let o = arr[i];
-                o.foo.apply(this,o.args);
+                o.foo.apply(this, o.args);
                 // 执行后删除
-                if(o.once){
-                    arr.splice(i--,1);
+                if (o.once) {
+                    arr.splice(i--, 1);
                 }
             }
         }
     }
-
+    /**
+     * 处理 增量渲染中 节点交换与依序删除操作
+     * @param deleteMap 增量渲染map
+     */
+    private handleRenderMap(deleteMap: Map<any, any>,root:Element) {
+        deleteMap.forEach((value, key) => {
+            let dp: HTMLElement = this.getNode(key);
+            let tmp = [];
+            for (let i = 0; i < value.length; i++) {
+                let index = value[i];
+                if (typeof index == 'object') {
+                    let els;
+                    //新建替换
+                    if (index[2] != undefined) {
+                        els = dp.querySelectorAll("[key='" + index[1] + "']");
+                        dp.insertBefore((() => {
+                            const vDom: Element = root.query(index[0]);
+                            return Util.newEls(vDom, this, vDom.parent, this.getNode(vDom.parent.key));
+                        })(), els[els.length - 1]);
+                    } else if (index.length === 2) {
+                        //更改dom节点顺序
+                        let ele = this.getNode(index[0]);
+                        if (ele) {
+                            //插入到后面
+                            if (index[1].charAt(0) == '|') {
+                                let els = dp.querySelectorAll("[key='" + index[1].substring(1) + "']");
+                                let next = els[els.length - 1].nextSibling;
+                                if (next !== null) dp.insertBefore(ele, next);
+                                else dp.appendChild(ele);
+                            } else {//插入到前面
+                                els = dp.querySelectorAll("[key='" + index[1] + "']");
+                                dp.insertBefore(ele, els[els.length - 1]);
+                            }
+                        }
+                    } else {
+                        //删除dom节点
+                        els = dp.querySelectorAll("[key='" + index[0] + "']");
+                        dp.removeChild(els[els.length - 1]);
+                    }
+                } else {
+                    tmp.push(index);
+                }
+            }
+            //替换和删除需要反向操作
+            for (let i = tmp.length - 1; i >= 0; i--) {
+                let index = tmp[i];
+                if (typeof index == 'string') {
+                    let parm = index.split('|');
+                    index = parm[0];
+                    const vDom: Element = root.query(parm[1]);
+                    dp.insertBefore((() => {
+                        return Util.newEls(vDom, this, vDom.parent, this.getNode(vDom.parent.key));
+                    })(), dp.childNodes[index++]);
+                }
+                if (dp.childNodes.length > index) dp.removeChild(dp.childNodes[index]);
+            }
+        });
+        deleteMap.clear();
+    }
     /**
      * 设置props
      * @param props     属性值
@@ -623,5 +637,5 @@ export class Module {
     public removeCache(key){
         this.cache.remove(key);
     }
-}
 
+}
